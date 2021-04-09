@@ -81,7 +81,6 @@ ABK_values = eig(A - B*K);
 %% 6. State Feedback Simulation (outputs = angles alpha and beta)
 T = 40;
 x0 = [0.1,0,0,0,0]';
-K_ = [K(1) K(3)];
 sim('Model1',T);
 
 gg = plot(t,x);
