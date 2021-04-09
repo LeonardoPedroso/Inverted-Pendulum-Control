@@ -1,7 +1,7 @@
 %% CEE Project
 
 %Load state model matrices A, B, C, D
-load fp_lin_matrices_fit3.mat
+load Material/fp_lin_matrices_fit3.mat
 
 %% 1.Analyse matrix A eigenvalues 
 A_values = eig(A);
