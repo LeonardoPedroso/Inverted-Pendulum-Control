@@ -5,7 +5,11 @@ load Material/fp_lin_matrices_fit3.mat
 
 %% 1.Analyse matrix A eigenvalues 
 A_values = eig(A);
-damp(A);
+n = size(A,1);
+m = size(B,2);
+o = size(C,1);
+fprintf("1. Uncontrolled system poles:\n");
+damp(A)
 
 % Matrix A has three negative eigenvalues, a zero eigenvalue, and a
 % positive eigenvalue. The existence of the positive eigenvalue is expected
@@ -25,23 +29,29 @@ damp(A);
 % Pendulum dynamics is an unstable second-order system
 
 %% 2. Check controllability
+fprintf("-------------------------\n");
+fprintf("2. Check controllability:\n");
 control_mat = ctrb(A,B);
-rank(control_mat);
+fprintf("Rank of ctrb: %d | is controllable: %d \n",...
+    rank(control_mat),rank(control_mat)==n);
 % As A is a 5x5 matrix and B is a 1x5 vector, the controllability matrix
 % will be a 5x5 matrix. Its rank is 5, equal to the number of columns.
 % This implies that the system is completely controllable, i.e., from any
 % initial state, it is possible to reach the origin in finite time.
 
 %% 3. Check observability
-
+fprintf("-------------------------\n");
+fprintf("3. Check observability:\n");
 % Just measuring x3 (angle beta)
 C_aux = [0,0,1,0,0]; 
 observ_mat = obsv(A,C_aux);
-rank(observ_mat);
+fprintf("Rank of obsv (measuring x3): %d | is observable: %d \n",...
+    rank(observ_mat),rank(observ_mat)==n);
 
 % Measuring x1 and x3 - original C matrix (angles alpha and beta)
 observ_mat = obsv(A,C);
-rank(observ_mat);
+fprintf("Rank of obsv (measuring x1 and x3): %d | is observable: %d \n",...
+    rank(observ_mat),rank(observ_mat)==n);
 
 % When only x3 is measured, the C matrix is 1x5 and the correspondent
 % observability will be 5x5. Its rank is 4, which is not equal to the
@@ -54,26 +64,64 @@ rank(observ_mat);
 % find the initial state x(0)
 
 %% 4. Find transfer function and plot Bode Diagrams
+fprintf("-------------------------\n");
+fprintf("4. Find transfer function and plot Bode Diagrams:\n");
 [b,a] = ss2tf(A,B,C,D);
+fprintf("Transfer function alpha(s)/u(s):\n");
 H_alpha = tf(b(1,:), a)
+fprintf("Transfer function beta(s)/u(s):\n");
 H_beta = tf(b(2,:),a)
+fprintf("Transfer function beta(s)/alpha(s):\n");
 H_beta_alpha = tf(b(2,:),b(1,:))
 
-figure;
-bode(H_alpha, {10^(-2), 10^4});
-figure;
-pzmap(H_alpha); %Pole-zero map
-figure;
-bode(H_beta, {10^(-2), 10^4});
-figure;
-pzmap(H_beta); %Pole-zero map
-grid on;
 
-figure;
-bode(H_beta_alpha, {10^(-2), 10^4});
-figure;
-pzmap(H_beta_alpha); %Pole-zero map
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+bode(H_alpha, {10^(-2), 10^4});
 grid on;
+saveas(gcf,'./figures/4_bode_alpha.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+bode(H_alpha, {10^(-2), 10^4});
+grid on;
+saveas(gcf,'./figures/4_bode_beta.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+bode(H_alpha, {10^(-2), 10^4});
+grid on;
+saveas(gcf,'./figures/4_bode_beta_alpha.png');
+
+% Os pz map que são gerados abaixo tem de se fazer zoom para por no
+% relatório
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+pzmap(H_alpha);
+grid on;
+axis equal;
+saveas(gcf,'./figures/4_pz_alpha.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+pzmap(H_beta);
+grid on;
+axis equal;
+saveas(gcf,'./figures/4_pz_beta.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+pzmap(H_beta_alpha);
+grid on;
+axis equal;
+saveas(gcf,'./figures/4_pz_beta_alpha.png');
 
 % Comment the diagram shape 
 % O diagrama de bode de alhpa tende para + infty para uma
