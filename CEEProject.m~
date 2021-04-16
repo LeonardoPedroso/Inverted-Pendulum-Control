@@ -93,12 +93,7 @@ grid on;
 % caracterizada por dois zeros na origem e pelos dois pólos do pêndulo 
 % (que são os zeros da f.t. de u para alpha).
 % Assim, o diagram de beta é uma combinação destes dois efeitos:
-% A baixas frequencias u excita a barra horizontal, mas nesta gamma de
-% frequencias a barra horizontal não excita o pêndulo. Já para altas
-% frequencias, ainda que o movimento da barra horizontal exite o pêdulo, 
-% não é possivel esitar a barra nesta gama de frequencias usando o motor.
-% Assim, é possívek controlar o pêdulo com um sinal u de uma frequencia
-% intermédia.
+% A baixas frequencias u excita a barra horizontal, mas 
 
 % Porque é que é controlável
 % O sistema tem dois graus de liberdade alpha e beta que pretedemos
