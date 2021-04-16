@@ -74,7 +74,8 @@ H_beta = tf(b(2,:),a)
 fprintf("Transfer function beta(s)/alpha(s):\n");
 H_beta_alpha = tf(b(2,:),b(1,:))
 
-
+drawPlots = false;
+if drawPlots
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
 set(gca,'FontSize',35);
@@ -123,6 +124,9 @@ grid on;
 axis equal;
 saveas(gcf,'./figures/4_pz_beta_alpha.png');
 
+close all;
+end
+
 % Comment the diagram shape 
 % O diagrama de bode de alhpa tende para + infty para uma
 % entrada constante, o que é consistente com o inteegrador da velocidade
@@ -165,33 +169,65 @@ saveas(gcf,'./figures/4_pz_beta_alpha.png');
 % possa observar esse modo.
 
 %% 5. Compute vector of gains K
+fprintf("-------------------------\n");
+fprintf("5. Compute vector of gains K: (assuming full state feedback)\n");
 R = 1; % Must be a positive scalar (single input system)
 % Q is a scaled version of a matrix where 
-Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0.5^2]); %Must be a semidefinite positive matrix
+% (Must be a semidefinite positive matrix)
+Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0]); 
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
 ABK_values = eig(A - B*K);
-damp(A - B*K);
+fprintf("Controlled system poles:\n");
+damp(A - B*K)
 
-% -737.3184
-%  -18.6615
-%   -9.3649
-%   -4.3740
-%   -1.4659
+% slowest poles
+[~,idx] = min(abs(ABK_values));
+slowestPoleLQR = ABK_values(idx);
+fprintf("Slowest pole: %f%+fj\n", real(ABK_values(idx)), imag(ABK_values(idx)));
 
-%% 6. State Feedback Simulation (outputs = angles alpha and beta)
-T = 40;
+%% 6. State Feedback Simulation (Model 1)
+fprintf("-------------------------\n");
+fprintf("6. State Feedback Simulation (assuming full state feedback)\n");
+
+T = 20;
 x0 = [0.1,0,0,0,0]';
 sim('Model1',T);
 
-gg = plot(t,x);
-set(gg,'LineWidth',1.5);
-gg = xlabel('Time (s)');
-set(gg,'Fontsize',12);
-gg = ylabel('\alpha, \beta (rad)');
-set(gg,'Fontsize',12);
-legend('\alpha', '\beta');
+if false
 
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[1 3]),'LineWidth',3);
+legend({"$\alpha$","$\beta$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/6_angles.png');
+
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[2 4]),'LineWidth',3);
+legend({"$\dot{\alpha}$","$\dot{\beta}$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/6_vel_angles.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,u,'LineWidth',3);
+plot(t,x(:,5),'LineWidth',3);
+legend({"$u$","$i$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/6_u_i.png');
+
+end
+
+return;
 %% 7. Calculate vector of gains of observer state
 G = eye(size(A)); %Gain of the process noise
 %Qe = 10*eye(size(A)); %Variance of process errors

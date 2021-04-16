@@ -74,54 +74,58 @@ H_beta = tf(b(2,:),a)
 fprintf("Transfer function beta(s)/alpha(s):\n");
 H_beta_alpha = tf(b(2,:),b(1,:))
 
-
+drawPlots = false;
+if drawPlots
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-grid on;
 set(gca,'FontSize',35);
 bode(H_alpha, {10^(-2), 10^4});
+grid on;
 saveas(gcf,'./figures/4_bode_alpha.png');
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-grid on;
 set(gca,'FontSize',35);
 bode(H_alpha, {10^(-2), 10^4});
-saveas(gcf,'./figures/4_bode_alpha.png');
+grid on;
+saveas(gcf,'./figures/4_bode_beta.png');
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-grid on;
 set(gca,'FontSize',35);
 bode(H_alpha, {10^(-2), 10^4});
-saveas(gcf,'./figures/4_bode_alpha.png');
-
-
-figure;
-bode(H_alpha, {10^(-2), 10^4});
-figure;
-pzmap(H_alpha); %Pole-zero map
-figure;
-bode(H_beta, {10^(-2), 10^4});
-figure;
-pzmap(H_beta); %Pole-zero map
 grid on;
+saveas(gcf,'./figures/4_bode_beta_alpha.png');
 
-figure;
-bode(H_beta_alpha, {10^(-2), 10^4});
-figure;
-pzmap(H_beta_alpha); %Pole-zero map
-grid on;
+% Os pz map que são gerados abaixo tem de se fazer zoom para por no
+% relatório
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-grid on;
-xlabel("$2\pi k/N \;[\mathrm{rad}]$",'Interpreter','latex');
-ylabel("$|X(k)|$",'Interpreter','latex');
 set(gca,'FontSize',35);
-plot(wX,absX,'LineWidth',3);
-xlim([min(wX) max(wX)]);
-saveas(gcf,'R1c_mag.png');
+pzmap(H_alpha);
+grid on;
+axis equal;
+saveas(gcf,'./figures/4_pz_alpha.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+pzmap(H_beta);
+grid on;
+axis equal;
+saveas(gcf,'./figures/4_pz_beta.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+set(gca,'FontSize',35);
+pzmap(H_beta_alpha);
+grid on;
+axis equal;
+saveas(gcf,'./figures/4_pz_beta_alpha.png');
+
+close all;
+end
 
 % Comment the diagram shape 
 % O diagrama de bode de alhpa tende para + infty para uma
@@ -165,24 +169,41 @@ saveas(gcf,'R1c_mag.png');
 % possa observar esse modo.
 
 %% 5. Compute vector of gains K
+fprintf("-------------------------\n");
+fprintf("5. Compute vector of gains K: (assuming full state feedback)\n");
 R = 1; % Must be a positive scalar (single input system)
 % Q is a scaled version of a matrix where 
-Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0.5^2]); %Must be a semidefinite positive matrix
+% (Must be a semidefinite positive matrix)
+Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0]); 
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
 ABK_values = eig(A - B*K);
-damp(A - B*K);
+fprintf("Controlled system poles:\n");
+damp(A - B*K)
 
-% -737.3184
-%  -18.6615
-%   -9.3649
-%   -4.3740
-%   -1.4659
+% slowest poles
+[~,idx] = min(abs(ABK_values));
+slowestPoleLQR = ABK_values(idx);
+fprintf("Slowest pole: %f%+fj\n", real(ABK_values(idx)), imag(ABK_values(idx)));
 
-%% 6. State Feedback Simulation (outputs = angles alpha and beta)
+%% 6. State Feedback Simulation (Model 1)
+fprintf("-------------------------\n");
+fprintf("6. State Feedback Simulation (assuming full state feedback)\n");
+
 T = 40;
 x0 = [0.1,0,0,0,0]';
 sim('Model1',T);
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x,'LineWidth',3);
+legend({"$\alpha$,$beta$"})
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+
+xlim([0,M-1]);
+saveas(gcf,'R1b.png');
 
 gg = plot(t,x);
 set(gg,'LineWidth',1.5);
