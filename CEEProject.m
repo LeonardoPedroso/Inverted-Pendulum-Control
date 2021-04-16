@@ -172,9 +172,9 @@ end
 fprintf("-------------------------\n");
 fprintf("5. Compute vector of gains K: (assuming full state feedback)\n");
 R = 1; % Must be a positive scalar (single input system)
-% Q is a scaled version of a matrix where 
+% Q is a scaled version of a matrix for 
 % (Must be a semidefinite positive matrix)
-Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0]); 
+Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0]);  
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
 ABK_values = eig(A - B*K);
@@ -227,29 +227,44 @@ saveas(gcf,'./figures/6_u_i.png');
 
 end
 
-return;
 %% 7. Calculate vector of gains of observer state
+fprintf("-------------------------\n");
+fprintf("7. Calculate vector of gains of observer state: \n");
+
 G = eye(size(A)); %Gain of the process noise
-%Qe = 10*eye(size(A)); %Variance of process errors
-Qe = 0.1*diag([0.18^2,(0.18*10)^2,0.018^2,(0.018*10)^2,0.5^2]);
-Re = (0.0018^2)*eye(2); %Variance of measurement errors
+%Variance of process errors
+Qe = 0.1*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025]);
+Re = (0.018^2)*eye(2); %Variance of measurement errors
+L = lqe(A, G, C, Qe, Re); %Synthesize estimator gains
+
+% Observer eigenvalues
+obs_values = eig(A - L*C);
+fprintf("Controlled system poles:\n");
+damp(A - L*C)
+
+% slowest pole
+[~,idx] = min(abs(obs_values));
+slowestPoleLQE = obs_values(idx);
+fprintf("Slowest pole: %f%+fj\n", real(obs_values(idx)), imag(obs_values(idx)));
+fprintf("Speed estimator/controller: %f\n",real(slowestPoleLQR)/real(slowestPoleLQE));
+
+% Closed loop dynamics
+V = A - B*K - L*C;
+D_ = [0 0];
+Acl = [A -B*K; L*C V];
+Acl_values = eig(Acl);
 
 % Note that the vector of gains is designed such that the estimation error
 % converges to zero.
 
 %% 8. Simulate Controlled System (with state observer)
-L = lqe(A, G, C, Qe, Re); %Calculate estimator gains
-V = A - B*K - L*C;
-D_ = [0 0];
 
-% Observer eigenvalues
-obs_values = eig(A - L*C);
-damp(A - L*C)
+fprintf("-------------------------\n");
+fprintf("7. Calculate vector of gains of observer state: \n");
 
-% Closed loop dynamics
-Acl = [A -B*K; L*C V];
-Acl_values = eig(Acl);
-%%
+
+
+
 
 sim('Model2',T);
 
