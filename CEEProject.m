@@ -258,56 +258,68 @@ Acl_values = eig(Acl);
 % converges to zero.
 
 %% 8. Simulate Controlled System (with state observer)
-
 fprintf("-------------------------\n");
-fprintf("7. Calculate vector of gains of observer state: \n");
+fprintf("8. Simulate Controlled System (with state observer) \n");
 
-
-
-
-
+T = 20;
 sim('Model2',T);
 
-figure();
-hold on;
-gg = plot(t,y);
-set(gg,'LineWidth',1.5);
-gg = xlabel('Time (s)');
-set(gg,'Fontsize',12);
-gg = ylabel('\alpha, \beta (rad)');
-set(gg,'Fontsize',12);
-legend('\alpha', '\beta');
+if false
 
-figure();
+figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-gg = plot(t,x_hat-x);
-set(gg,'LineWidth',1.5);
-gg = xlabel('Time (s)');
-set(gg,'Fontsize',12);
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[1 3]),'LineWidth',3);
+legend({"$\alpha$","$\beta$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/8_angles.png');
 
-figure();
+figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-gg = plot(t,u);
-set(gg,'LineWidth',1.5);
-gg = xlabel('Time (s)');
-set(gg,'Fontsize',12);
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[2 4]),'LineWidth',3);
+legend({"$\dot{\alpha}$","$\dot{\beta}$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/8_vel_angles.png');
 
-%gg = ylabel('\alpha, \beta (rad)');
-%set(gg,'Fontsize',12);
-%legend('\alpha', '\beta');
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,u,'LineWidth',3);
+plot(t,x(:,5),'LineWidth',3);
+legend({"$u$","$i$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/8_u_i.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x_hat-x,'LineWidth',3);
+ylabel("$\hat{x}-x$",'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+legend({"$\alpha$","$\dot{\alpha}$","$\beta$","$\dot{\beta}$","$i$"},'Interpreter','latex');
+saveas(gcf,'./figures/8_estimation_error.png');
+end
 
 % With this control strategy, the values of alpha and beta converge to zero
 % and the inverted pendulum is properly controlled. Note now that the
 % values of K can be altered to try to improve this solution (for example,
 % minimizing the time of convergence to zero).
 
+
+
 %% A Fazer
 % Ver funcao tranferencia -> observabilidade - check leo 16/04
 % Comentar bode no codigo em relação a controlabilidade - check leo 16/04
 % Ver não linearidades: 
 % 1. Ruido aditivo; 
-% 2. Saturação; 
+% 2. Saturação;  -> aparece lá 5, mas acho que não deve ser o que ali está 
 % -> já se pode por heuristica de performance
 % 3. Deadzone; 
 % 4. Não linearidade
+% 5. delay
 % Referencia em alpha
