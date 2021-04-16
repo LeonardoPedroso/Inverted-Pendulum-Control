@@ -5,7 +5,7 @@ load Material/fp_lin_matrices_fit3.mat
 
 %% 1.Analyse matrix A eigenvalues 
 A_values = eig(A);
-damp(A)
+damp(A);
 
 % Matrix A has three negative eigenvalues, a zero eigenvalue, and a
 % positive eigenvalue. The existence of the positive eigenvalue is expected
@@ -27,11 +27,11 @@ damp(A)
 %% 2. Check controllability
 control_mat = ctrb(A,B);
 rank(control_mat);
-
 % As A is a 5x5 matrix and B is a 1x5 vector, the controllability matrix
 % will be a 5x5 matrix. Its rank is 5, equal to the number of columns.
 % This implies that the system is completely controllable, i.e., from any
 % initial state, it is possible to reach the origin in finite time.
+
 %% 3. Check observability
 
 % Just measuring x3 (angle beta)
@@ -55,15 +55,15 @@ rank(observ_mat);
 
 %% 4. Find transfer function and plot Bode Diagrams
 [b,a] = ss2tf(A,B,C,D);
-H_alpha = tf(b(1,:), a);
-H_beta = tf(b(2,:),a);
-figure
+H_alpha = tf(b(1,:), a)
+H_beta = tf(b(2,:),a)
+figure;
 bode(H_alpha, {10^(-2), 10^4});
-figure
+figure;
 pzmap(H_alpha); %Pole-zero map
-figure
+figure;
 bode(H_beta, {10^(-2), 10^4});
-figure
+figure;
 pzmap(H_beta); %Pole-zero map
 grid on;
 
@@ -80,14 +80,11 @@ grid on;
 
 % A funcção transferencia evidencia a existencia de dois zeros na origem,
 % que causam a subida a baixas frequencias da magnitude do diagrama de
-% bode. 
-
-
-% É apenas possível co
+% bode. Assim, há um cancelamento do pólo do integrador que inibe que se
+% possa observar esse modo.
 
 %% 5. Compute vector of gains K
 R = 1; %Must be a positive scalar
-%Q = 2*diag([1 0 10 0 0]);
 Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0.5^2]); %Must be a semidefinite positive matrix
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
@@ -172,8 +169,8 @@ set(gg,'Fontsize',12);
 % minimizing the time of convergence to zero).
 
 %% A Fazer
-% Ver funcao tranferencia -> observabilidade 
-% Comentar bode no codigo em relação a controlabilidade
+% Ver funcao tranferencia -> observabilidade - check leo 16/04
+% Comentar bode no codigo em relação a controlabilidade - check leo 16/04
 % Ver não linearidades: 
 % 1. Ruido aditivo; 
 % 2. Saturação; 
