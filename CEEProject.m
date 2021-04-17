@@ -174,7 +174,7 @@ fprintf("5. Compute vector of gains K: (assuming full state feedback)\n");
 R = 1; % Must be a positive scalar (single input system)
 % Q is a scaled version of a matrix for 
 % (Must be a semidefinite positive matrix)
-Q = 500*diag([0.1*0.18^2,0,0.18^2,0,0]);  
+Q =   500*diag([0.1*0.18^2,0,0.18^2,0,0]);  
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
 ABK_values = eig(A - B*K);
@@ -315,8 +315,24 @@ end
 fprintf("-------------------------\n");
 fprintf("8.1 Simulate Controlled System with process noise, sensor noise, saturation.\n");
 
+% Saturation constants
 saturation_u = 5;
 
+% Nonlinear model constants
+NLM.Le1 = 227*1e-3; %(m)
+NLM.J0 = 86.98*1e-3; %(Kg m^2) 
+NLM.Ka1 = 1e-3;
+NLM.m2 = 309*1e-3;
+NLM.Lcm2 = 404*1e-3;
+NLM.J2 = 28.37*1e-3;
+NLM.Ka2 = 0.136*1e-3;
+NLM.Lb = 3e-3;
+NLM.R = 2.266;
+NLM.Kt = 0.696;
+NLM.Kf = 3.377;
+NLM.g = 9.81;
+
+% Noise constants
 tc = (1/100)*2*pi/737;
 covProcess = 10*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
 covSensor = (0.018^2)*eye(2);
@@ -379,5 +395,4 @@ end
 % -> já se pode por heuristica de performance
 % 3. Deadzone; 
 % 4. Não linearidade
-% 5. delay
 % Referencia em alpha
