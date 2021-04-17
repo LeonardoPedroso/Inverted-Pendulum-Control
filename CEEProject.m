@@ -233,7 +233,7 @@ fprintf("7. Calculate vector of gains of observer state: \n");
 
 G = eye(size(A)); %Gain of the process noise
 %Variance of process errors
-Qe = 0.1*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025]);
+Qe = 0.1*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
 Re = (0.018^2)*eye(2); %Variance of measurement errors
 L = lqe(A, G, C, Qe, Re); %Synthesize estimator gains
 
@@ -310,7 +310,65 @@ end
 % values of K can be altered to try to improve this solution (for example,
 % minimizing the time of convergence to zero).
 
+%% 9. Simulate Controlled System (with state observer) 
+% Process noise + sensor noise + saturation
+fprintf("-------------------------\n");
+fprintf("8.1 Simulate Controlled System with process noise, sensor noise, saturation.\n");
 
+saturation_u = 5;
+
+tc = (1/100)*2*pi/737;
+covProcess = 10*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
+covSensor = (0.018^2)*eye(2);
+
+T = 20;
+sim('ModelNL1',T);
+
+if true
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[1 3]),'LineWidth',3);
+legend({"$\alpha$","$\beta$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/9_angles.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[2 4]),'LineWidth',3);
+legend({"$\dot{\alpha}$","$\dot{\beta}$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/9_vel_angles.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,u,'LineWidth',3);
+plot(t,x(:,5),'LineWidth',3);
+legend({"$u$","$i$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/9_u_i.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x_hat-x,'LineWidth',3);
+ylabel("$\hat{x}-x$",'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+legend({"$\alpha$","$\dot{\alpha}$","$\beta$","$\dot{\beta}$","$i$"},'Interpreter','latex');
+saveas(gcf,'./figures/9_estimation_error.png');
+end
+
+% With this control strategy, the values of alpha and beta converge to zero
+% and the inverted pendulum is properly controlled. Note now that the
+% values of K can be altered to try to improve this solution (for example,
+% minimizing the time of convergence to zero).
 
 %% A Fazer
 % Ver funcao tranferencia -> observabilidade - check leo 16/04
