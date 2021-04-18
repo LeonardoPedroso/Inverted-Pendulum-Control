@@ -393,11 +393,11 @@ fprintf("10. Simulate Controlled System + deadband\n");
 % Saturation constants
 deadzone_u = 5e-2;
 
+if false
+
 T = 20;
 sim('ModelNL1',T);
-
-if true
-
+    
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
 grid on;
@@ -405,7 +405,7 @@ set(gca,'FontSize',35);
 plot(t,x(:,[1 3]),'LineWidth',3);
 legend({"$\alpha$","$\beta$"},'Interpreter','latex');
 xlabel("$t (\mathrm{s})$",'Interpreter','latex');
-saveas(gcf,'./figures/9_angles.png');
+saveas(gcf,'./figures/10_angles.png');
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
@@ -414,7 +414,7 @@ set(gca,'FontSize',35);
 plot(t,x(:,[2 4]),'LineWidth',3);
 legend({"$\dot{\alpha}$","$\dot{\beta}$"},'Interpreter','latex');
 xlabel("$t (\mathrm{s})$",'Interpreter','latex');
-saveas(gcf,'./figures/9_vel_angles.png');
+saveas(gcf,'./figures/10_vel_angles.png');
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
@@ -424,7 +424,7 @@ plot(t,u,'LineWidth',3);
 plot(t,x(:,5),'LineWidth',3);
 legend({"$u$","$i$"},'Interpreter','latex');
 xlabel("$t (\mathrm{s})$",'Interpreter','latex');
-saveas(gcf,'./figures/9_u_i.png');
+saveas(gcf,'./figures/10_u_i.png');
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
@@ -434,10 +434,56 @@ plot(t,x_hat-x,'LineWidth',3);
 ylabel("$\hat{x}-x$",'Interpreter','latex');
 xlabel("$t (\mathrm{s})$",'Interpreter','latex');
 legend({"$\alpha$","$\dot{\alpha}$","$\beta$","$\dot{\beta}$","$i$"},'Interpreter','latex');
-saveas(gcf,'./figures/9_estimation_error.png');
+saveas(gcf,'./figures/10_estimation_error.png');
 end
 
 %% 11. Simulate Controlled System nonlinear control alpha
+
+if true
+    
+T = 100;
+sim('ModelNL2',T);
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[1 3]),'LineWidth',3);
+plot(t,ref,'LineWidth',3);
+legend({"$\alpha$","$\beta$","Reference"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/11_angles.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x(:,[2 4]),'LineWidth',3);
+legend({"$\dot{\alpha}$","$\dot{\beta}$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/11_vel_angles.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,u,'LineWidth',3);
+plot(t,x(:,5),'LineWidth',3);
+legend({"$u$","$i$"},'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+saveas(gcf,'./figures/11_u_i.png');
+
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+plot(t,x_hat-x,'LineWidth',3);
+ylabel("$\hat{x}-x$",'Interpreter','latex');
+xlabel("$t (\mathrm{s})$",'Interpreter','latex');
+legend({"$\alpha$","$\dot{\alpha}$","$\beta$","$\dot{\beta}$","$i$"},'Interpreter','latex');
+saveas(gcf,'./figures/11_estimation_error.png');
+end
+
 
 
 %% A Fazer
