@@ -175,7 +175,7 @@ fprintf("5. Compute vector of gains K: (assuming full state feedback)\n");
 R = 1; % Must be a positive scalar (single input system)
 % Q is a scaled version of a matrix for 
 % (Must be a semidefinite positive matrix) % 500
-Q =   500*diag([0.1*0.18^2,0,0.18^2,0,0]);  
+Q =   1e4*diag([0.01*0.18^2,0,0.18^2,0,0]);  
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
 ABK_values = eig(A - B*K);
@@ -235,7 +235,7 @@ fprintf("7. Calculate vector of gains of observer state: \n");
 
 G = eye(size(A)); %Gain of the process noise
 %Variance of process errors %100
-Qe = 1*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
+Qe = 100*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
 Re = (0.018^2)*eye(2); %Variance of measurement errors
 L = lqe(A, G, C, Qe, Re); %Synthesize estimator gains
 
@@ -533,6 +533,8 @@ end
 % - Monte carlo (dos parametros não lineares)
 % - Deadband o que fazer com isto? Mias agressivo melhor? Entra nas
 % simulações?
-% - Tracking de alpha 
+% - Tracking de alpha (ss error justificação)
+% - secções report 
+% - 
 
 

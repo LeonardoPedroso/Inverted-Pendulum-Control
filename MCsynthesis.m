@@ -7,12 +7,26 @@ Nctrl = 100;
 
 %% Sims
 
-Qctrl = 10.^(2:0.5:7);
-Qobs = 10.^(2:0.5:9);
+Qctrl = 10.^(0:0.5:7);
+Qobs = 10.^(0:0.5:9);
 
 performance = inf(length(Qctrl),length(Qobs));
 
-for ictrl = 1:length(Qctrl)
+% Nonlinear model constants
+        NLM.Le1 = 227*1e-3; %normrnd(0,1e-3); %(m)
+        NLM.J0 = 86.98*1e-3; %(Kg m^2) 
+        NLM.Ka1 = 1e-3;
+        NLM.m2 = 309*1e-3;
+        NLM.Lcm2 = 404*1e-3;
+        NLM.J2 = 28.37*1e-3;
+        NLM.Ka2 = 0.136*1e-3;
+        NLM.Lb = 3e-3;
+        NLM.R = 2.266;
+        NLM.Kt = 0.696;
+        NLM.Kf = 3.377;
+        NLM.g = 9.81;
+
+parfor ictrl = 1:length(Qctrl)
     for iobs = 1:length(Qobs)
         % LQR
         R = 1; % Must be a positive scalar (single input system)
@@ -60,24 +74,10 @@ for ictrl = 1:length(Qctrl)
         covProcess = 1*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
         covSensor = (0.018^2)*eye(2);
 
-        % Nonlinear model constants
-        NLM.Le1 = 227*1e-3; %normrnd(0,1e-3); %(m)
-        NLM.J0 = 86.98*1e-3; %(Kg m^2) 
-        NLM.Ka1 = 1e-3;
-        NLM.m2 = 309*1e-3;
-        NLM.Lcm2 = 404*1e-3;
-        NLM.J2 = 28.37*1e-3;
-        NLM.Ka2 = 0.136*1e-3;
-        NLM.Lb = 3e-3;
-        NLM.R = 2.266;
-        NLM.Kt = 0.696;
-        NLM.Kf = 3.377;
-        NLM.g = 9.81;
+        
         
         T = 5;
         sim('ModelNL1',T);
-        
-        
         performance(ictrl,iobs) = x(:,1)'*x(:,1)+ x(:,3)'*2'*2*x(:,3);
                     
     end
