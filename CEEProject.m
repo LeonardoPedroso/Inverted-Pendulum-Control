@@ -86,14 +86,14 @@ saveas(gcf,'./figures/4_bode_alpha.png');
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
 set(gca,'FontSize',35);
-bode(H_alpha, {10^(-2), 10^4});
+bode(H_beta, {10^(-2), 10^4});
 grid on;
 saveas(gcf,'./figures/4_bode_beta.png');
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
 set(gca,'FontSize',35);
-bode(H_alpha, {10^(-2), 10^4});
+bode(H_beta_alpha, {10^(-2), 10^4});
 grid on;
 saveas(gcf,'./figures/4_bode_beta_alpha.png');
 
@@ -127,11 +127,12 @@ saveas(gcf,'./figures/4_pz_beta_alpha.png');
 close all;
 end
 
+
 % Comment the diagram shape 
 % O diagrama de bode de alhpa tende para + infty para uma
 % entrada constante, o que é consistente com o inteegrador da velocidade
 % angukar do motor. É de notar que a mag começa a cair a -40 db/dec após
-% passar o pólo -5.76 que como prvisto anteriormente é o pólo que rege a
+% passar o pólo -19... que como prvisto anteriormente é o pólo que rege a
 % dinâmica entre o torque na barra horizontal. è de notar que como os pólos
 % da dinâmica do pendulo estão muito próximos dos zeros da func de
 % transferencia de u para beta, então estes têm um efeito despresável na
@@ -173,7 +174,7 @@ fprintf("-------------------------\n");
 fprintf("5. Compute vector of gains K: (assuming full state feedback)\n");
 R = 1; % Must be a positive scalar (single input system)
 % Q is a scaled version of a matrix for 
-% (Must be a semidefinite positive matrix)
+% (Must be a semidefinite positive matrix) % 500
 Q =   500*diag([0.1*0.18^2,0,0.18^2,0,0]);  
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
@@ -186,15 +187,16 @@ damp(A - B*K)
 slowestPoleLQR = ABK_values(idx);
 fprintf("Slowest pole: %f%+fj\n", real(ABK_values(idx)), imag(ABK_values(idx)));
 
+
 %% 6. State Feedback Simulation (Model 1)
 fprintf("-------------------------\n");
 fprintf("6. State Feedback Simulation (assuming full state feedback)\n");
 
 T = 20;
-x0 = [0.1,0,0,0,0]';
+x0 = [pi,0,0.4,0,0]';
 sim('Model1',T);
 
-if false
+if true
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
@@ -232,8 +234,8 @@ fprintf("-------------------------\n");
 fprintf("7. Calculate vector of gains of observer state: \n");
 
 G = eye(size(A)); %Gain of the process noise
-%Variance of process errors
-Qe = 100*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
+%Variance of process errors %100
+Qe = 1*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
 Re = (0.018^2)*eye(2); %Variance of measurement errors
 L = lqe(A, G, C, Qe, Re); %Synthesize estimator gains
 
@@ -264,7 +266,7 @@ fprintf("8. Simulate Controlled System (with state observer) \n");
 T = 20;
 sim('Model2',T);
 
-if false
+if true
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
@@ -319,8 +321,16 @@ fprintf("9 Simulate Controlled System with nonlinear dynamics, process noise, se
 saturation_u = 5;
 deadzone_u = 0; % no deadzone yet
 
+% Initial state
+x0 = [pi/4,0,0.18,0,0]';
+
+% Noise constants
+tc = (1/100)*2*pi/10;%(1/100)*2*pi/737;
+covProcess = 1*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
+covSensor = (0.018^2)*eye(2);
+
 % Nonlinear model constants
-NLM.Le1 = 227*1e-3; %(m)
+NLM.Le1 = 227*1e-3; %normrnd(0,1e-3); %(m)
 NLM.J0 = 86.98*1e-3; %(Kg m^2) 
 NLM.Ka1 = 1e-3;
 NLM.m2 = 309*1e-3;
@@ -333,13 +343,7 @@ NLM.Kt = 0.696;
 NLM.Kf = 3.377;
 NLM.g = 9.81;
 
-% Noise constants
-tc = (1/100)*2*pi/737;
-covProcess = 10*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
-covSensor = (0.018^2)*eye(2);
-
-
-if false
+if true
     
 T = 20;
 sim('ModelNL1',T);
@@ -393,8 +397,23 @@ fprintf("10. Simulate Controlled System + deadband\n");
 % Saturation constants
 deadzone_u = 5e-2;
 
-if false
+% Nonlinear model constants
+NLM.Le1 = 227*1e-3; %normrnd(0,1e-3); %(m)
+NLM.J0 = 86.98*1e-3; %(Kg m^2) 
+NLM.Ka1 = 1e-3;
+NLM.m2 = 309*1e-3;
+NLM.Lcm2 = 404*1e-3;
+NLM.J2 = 28.37*1e-3;
+NLM.Ka2 = 0.136*1e-3;
+NLM.Lb = 3e-3;
+NLM.R = 2.266;
+NLM.Kt = 0.696;
+NLM.Kf = 3.377;
+NLM.g = 9.81;
 
+if true
+
+    
 T = 20;
 sim('ModelNL1',T);
     
@@ -439,10 +458,34 @@ end
 
 %% 11. Simulate Controlled System nonlinear control alpha
 
+
+% Saturation constants
+deadzone_u = 5e-2;
+
+
+NLM.Le1 = 227*1e-3;
+NLM.J0 = 86.98*1e-3; %(Kg m^2) 
+NLM.Ka1 = 1e-3;
+NLM.m2 = 309*1e-3;
+NLM.Lcm2 = 404*1e-3;
+NLM.J2 = 28.37*1e-3;
+NLM.Ka2 = 0.136*1e-3;
+NLM.Lb = 3e-3;
+NLM.R = 2.266;
+NLM.Kt = 0.696;
+NLM.Kf = 3.377;
+NLM.g = 9.81;
+
+% Noise constants
+tc = (1/100)*2*pi/10;%(1/100)*2*pi/737;
+covProcess = diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
+covSensor = (0.018^2)*eye(2);
+
+
 if true
     
 T = 100;
-sim('ModelNL2',T);
+sim('ModelNL3',T);
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
@@ -484,15 +527,12 @@ legend({"$\alpha$","$\dot{\alpha}$","$\beta$","$\dot{\beta}$","$i$"},'Interprete
 saveas(gcf,'./figures/11_estimation_error.png');
 end
 
+%% Dúvidas
+% - Saturação super alta
+% - Funcção de custo só x. É assim a avaliação numérica?
+% - Monte carlo (dos parametros não lineares)
+% - Deadband o que fazer com isto? Mias agressivo melhor? Entra nas
+% simulações?
+% - Tracking de alpha 
 
 
-%% A Fazer
-% Ver funcao tranferencia -> observabilidade - check leo 16/04
-% Comentar bode no codigo em relação a controlabilidade - check leo 16/04
-% Ver não linearidades: 
-% 1. Ruido aditivo; 
-% 2. Saturação;  -> aparece lá 5, mas acho que não deve ser o que ali está 
-% -> já se pode por heuristica de performance
-% 3. Deadzone; 
-% 4. Não linearidade
-% Referencia em alpha
