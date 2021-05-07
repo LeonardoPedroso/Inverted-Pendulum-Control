@@ -4,10 +4,11 @@ clear;
 %Load state model matrices A, B, C, D
 load Material/fp_lin_matrices_fit3.mat
 
-RUN = 3;
-Qctrl = 10.^(0:0.5:7);
-Qobs = 10.^(0:0.5:9);
+RUN = 5;
+Qctrl = 10.^(0:0.25:7);
+Qobs = 10.^(0:0.25:9);
 performance = inf(length(Qctrl),length(Qobs));
+speedRatio = zeros(length(Qctrl),length(Qobs));
 
 
 %% Nonlinear model
@@ -57,7 +58,7 @@ for ictrl = 1:length(Qctrl)
         
         % Test speed ratio
         if real(slowestPoleLQE)/real(slowestPoleLQR) < 4
-           continue; 
+           speedRatio(ictrl,iobs) = 1;
         end
         
         sim('Model_9',T);
@@ -68,9 +69,30 @@ end
 
 %% Save data
 str = sprintf("perfromance%02d.mat",RUN);
-save(str,'performance','Qctrl','Qobs','saturation_u','deadzone_u',...
+save(str,'performance','speedRatio','Qctrl','Qobs','saturation_u','deadzone_u',...
     'covProcess','covSensor','pulse','T');
 
 %% Plot
-mesh(log10(performance));
+performanceSpeed = performance;
+performanceSpeed(speedRatio == 0) = NaN;
+performance(speedRatio ~= 0) = NaN;
+
+[aux, imin] = min(performance);
+[Jmin,jmin] = min(aux);
+[X,Y] = meshgrid(log10(Qctrl),log10(Qobs));
+figure('units','normalized','outerposition',[0 0 1 1]);
+hold on;
+grid on;
+set(gca,'FontSize',35);
+s = mesh(X,Y,log10(performance)');
+s.FaceColor = 'flat';
+s = mesh(X,Y,log10(performanceSpeed)');
+s.FaceColor = [0.8500 0.3250 0.0980];
+scatter3(log10(Qctrl(imin(jmin))),log10(Qobs(jmin)),log10(Jmin),500,'r','filled','d');
+xlabel('$\log(\gamma)$','Interpreter','latex');
+ylabel('$\log(\phi)$','Interpreter','latex');
+zlabel('$\log(J)$','Interpreter','latex');
+hold off;
+
+
 
