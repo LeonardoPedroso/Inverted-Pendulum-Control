@@ -4,9 +4,9 @@ clear;
 %Load state model matrices A, B, C, D
 load Material/fp_lin_matrices_fit3.mat
 
-RUN = 5;
-Qctrl = 10.^(0:0.25:7);
-Qobs = 10.^(0:0.25:9);
+RUN = 9;
+Qctrl = 10.^(-3:0.1:4);
+Qobs = 10.^(0:0.1:9);
 performance = inf(length(Qctrl),length(Qobs));
 speedRatio = zeros(length(Qctrl),length(Qobs));
 
@@ -26,7 +26,7 @@ NLM.Kt = 0.696;
 NLM.Kf = 3.377;
 NLM.g = 9.81;
 saturation_u = 5;
-deadzone_u = 1e-1;
+deadzone_u = 2e-1;
 tc = (1/100)*2*pi/10;
 covProcess = 100*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
 covSensor = ((2*0.018)^2)*eye(2);
@@ -41,7 +41,7 @@ for ictrl = 1:length(Qctrl)
     for iobs = 1:length(Qobs)
         % LQR
         R = 1;
-        Q = Qctrl(ictrl)*diag([0.01*0.18^2,0,0.18^2,0,0]);  
+        Q = Qctrl(ictrl)*diag([1/(10*0.18)^2,0,1/0.18^2,0,0]);  
         [K,~,~] = lqr(A,B,Q,R,0);
         ABK_values = eig(A - B*K);
         [~,idx] = min(abs(ABK_values));
@@ -75,7 +75,7 @@ save(str,'performance','speedRatio','Qctrl','Qobs','saturation_u','deadzone_u',.
 %% Plot
 performanceSpeed = performance;
 performanceSpeed(speedRatio == 0) = NaN;
-performance(speedRatio ~= 0) = NaN;
+%performance(speedRatio ~= 0) = NaN;
 
 [aux, imin] = min(performance);
 [Jmin,jmin] = min(aux);
@@ -88,11 +88,14 @@ s = mesh(X,Y,log10(performance)');
 s.FaceColor = 'flat';
 s = mesh(X,Y,log10(performanceSpeed)');
 s.FaceColor = [0.8500 0.3250 0.0980];
-scatter3(log10(Qctrl(imin(jmin))),log10(Qobs(jmin)),log10(Jmin),500,'r','filled','d');
+imin = imin(jmin);
+scatter3(log10(Qctrl(imin)),log10(Qobs(jmin)),log10(Jmin),300,'r','*','LineWidth',5);
 xlabel('$\log(\gamma)$','Interpreter','latex');
 ylabel('$\log(\phi)$','Interpreter','latex');
-zlabel('$\log(J)$','Interpreter','latex');
+zlabel('$\log(\bar{J})$','Interpreter','latex');
 hold off;
 
+str = sprintf("perfromanceMin%02d.mat",RUN);
+save(str,'imin','jmin','Qctrl','Qobs');
 
 

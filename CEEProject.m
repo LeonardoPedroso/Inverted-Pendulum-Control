@@ -175,7 +175,7 @@ fprintf("5. Compute vector of gains K: (assuming full state feedback)\n");
 R = 1; % Must be a positive scalar (single input system)
 % Q is a scaled version of a matrix for 
 % (Must be a semidefinite positive matrix) % 500
-Q =   1e4*diag([0.01*0.18^2,0,0.18^2,0,0]);  
+Q =   10*diag(1./[(10*0.18)^2,0,0.18^2,0,0]);  
 [K,S,e] = lqr(A,B,Q,R,0); %Linear Quadratic Regulator
 
 ABK_values = eig(A - B*K);
