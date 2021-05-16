@@ -273,13 +273,10 @@ end
 % and beta to thresholds at the same time.
 
 % Substituindo o fator multiplicativo em Qe por 5, atinge-se o valor máximo
-% da saturação e os polos do observador não são, no mínimo, 4 vezes mais
-% rápidos do q os polos do contorlador.
-
-% Mudando o primeiro fator em Q muda a distâncias entre os índices a e b
+% da saturação e o 
 
 G = 0.9*eye(size(A));
-Qe = 50*diag([10.5*(0.018)^2,(0.018*10)^2,(0.018^2),(0.018*10)^2,0]);
+Qe = 5*diag([10.5*(0.018)^2,(0.018*10)^2,(0.018^2),(0.018*10)^2,0]);
 Re = 5*(0.018^2)*eye(2);
 L = lqe(A, G, C, Qe, Re); %Synthesize estimator gains
 obs_values = eig(A - L*C)
