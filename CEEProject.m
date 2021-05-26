@@ -74,57 +74,63 @@ H_beta = tf(b(2,:),a)
 fprintf("Transfer function beta(s)/alpha(s):\n");
 H_beta_alpha = tf(b(2,:),b(1,:))
 
-drawPlots = false;
+drawPlots = true;
 if drawPlots
-figure('units','normalized','outerposition',[0 0 1 1]);
+%figure('units','normalized','outerposition',[0 0 1 1]);
+figure();
 hold on;
-set(gca,'FontSize',35);
+%set(gca,'FontSize',35);
 bode(H_alpha, {10^(-2), 10^4});
 grid on;
-saveas(gcf,'./figures/4_bode_alpha.png');
+%saveas(gcf,'./figures/4_bode_alpha.png');
 
-figure('units','normalized','outerposition',[0 0 1 1]);
+%figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-set(gca,'FontSize',35);
+%set(gca,'FontSize',35);
 bode(H_beta, {10^(-2), 10^4});
 grid on;
-saveas(gcf,'./figures/4_bode_beta.png');
+%saveas(gcf,'./figures/4_bode_beta.png');
 
-figure('units','normalized','outerposition',[0 0 1 1]);
+%figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-set(gca,'FontSize',35);
+%set(gca,'FontSize',35);
 bode(H_beta_alpha, {10^(-2), 10^4});
 grid on;
+legend ({"$\alpha(s)/u(s)$","$\beta(s)/u(s)$","$\beta(s)/\alpha(s)$"},"Interpreter","latex");
 saveas(gcf,'./figures/4_bode_beta_alpha.png');
+
 
 % Os pz map que são gerados abaixo tem de se fazer zoom para por no
 % relatório
 
-figure('units','normalized','outerposition',[0 0 1 1]);
+%figure('units','normalized','outerposition',[0 0 1 1]);
+figure;
 hold on;
-set(gca,'FontSize',35);
+%set(gca,'FontSize',35);
 pzmap(H_alpha);
 grid on;
 axis equal;
 saveas(gcf,'./figures/4_pz_alpha.png');
 
-figure('units','normalized','outerposition',[0 0 1 1]);
+%figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-set(gca,'FontSize',35);
+%set(gca,'FontSize',35);
 pzmap(H_beta);
 grid on;
 axis equal;
-saveas(gcf,'./figures/4_pz_beta.png');
+%saveas(gcf,'./figures/4_pz_beta.png');
 
-figure('units','normalized','outerposition',[0 0 1 1]);
+%figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-set(gca,'FontSize',35);
-pzmap(H_beta_alpha);
-grid on;
-axis equal;
-saveas(gcf,'./figures/4_pz_beta_alpha.png');
+%set(gca,'FontSize',35);
+%pzmap(H_beta_alpha);
+%grid on;
+%axis equal;
+%saveas(gcf,'./figures/4_pz_beta_alpha.png');
 
-close all;
+legend ({"$\alpha(s)/u(s)$","$\beta(s)/u(s)$","$\beta(s)/\alpha(s)$"},"Interpreter","latex");
+
+%close all;
 end
 
 

@@ -128,7 +128,7 @@ tdz = t;
 %% 9.4 Noise
 tc = (1/100)*2*pi/10;
 covProcess = 100*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
-covSensor = ((2*0.018)^2)*eye(2); % std dev 1 deg
+covSensor = ((0.018)^2)*eye(2); % std dev 1 deg
 
 T = 20;
 sim('Model_9',T);
@@ -168,7 +168,7 @@ tnoise = t;
 %% 9.5 Synthsize optimum response
 
 
-RUN = 9;
+RUN = 11;
 str = sprintf("perfromanceMin%02d.mat",RUN);
 load(str);
 
@@ -189,7 +189,7 @@ saturation_u = 5;
 deadzone_u = 1e-1;
 tc = (1/100)*2*pi/10;
 covProcess = 100*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
-covSensor = ((2*0.018)^2)*eye(2);
+covSensor = ((0.018)^2)*eye(2);
 
 R = 1;
 Q = Qctrl(imin)*diag([1/(10*0.18)^2,0,1/0.18^2,0,0]);  
@@ -199,6 +199,8 @@ G = eye(size(A));
 Qe = Qobs(jmin)*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
 Re = (0.018^2)*eye(2); %Variance of measurement errors
 L = lqe(A, G, C, Qe, Re);
+
+damp(A-B*K)
 
 sim('Model_9',T);
 xopt = x;

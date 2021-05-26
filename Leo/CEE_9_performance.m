@@ -4,7 +4,7 @@ clear;
 %Load state model matrices A, B, C, D
 load Material/fp_lin_matrices_fit3.mat
 
-RUN = 9;
+RUN = 11;
 Qctrl = 10.^(-3:0.1:4);
 Qobs = 10.^(0:0.1:9);
 performance = inf(length(Qctrl),length(Qobs));
@@ -13,23 +13,24 @@ speedRatio = zeros(length(Qctrl),length(Qobs));
 
 %% Nonlinear model
 % Model parameters
-NLM.Le1 = 227*1e-3;
-NLM.J0 = 86.98*1e-3;
-NLM.Ka1 = 1e-3;
-NLM.m2 = 309*1e-3;
-NLM.Lcm2 = 404*1e-3;
-NLM.J2 = 28.37*1e-3;
-NLM.Ka2 = 0.136*1e-3;
-NLM.Lb = 3e-3;
-NLM.R = 2.266;
-NLM.Kt = 0.696;
-NLM.Kf = 3.377;
+rng(1);
+NLM.Le1 = 227*1e-3+normrnd(0,(1e-3)^2);
+NLM.J0 = 86.98*1e-3+normrnd(0,(0.03*1e-3)^2);
+NLM.Ka1 = 1e-3+normrnd(0,(0.3e-3)^2);
+NLM.m2 = 309*1e-3+normrnd(0,(1e-3)^2);
+NLM.Lcm2 = 404*1e-3+normrnd(0,(1e-3)^2);
+NLM.J2 = 28.37*1e-3+normrnd(0,(0.01e-3)^2);
+NLM.Ka2 = 0.136*1e-3+normrnd(0,(0.001e-3)^2);
+NLM.Lb = 3e-3+normrnd(0,(0.1e-3)^2);
+NLM.R = 2.266+normrnd(0,(0.002)^2);
+NLM.Kt = 0.696+normrnd(0,(0.001)^2);
+NLM.Kf = 3.377+normrnd(0,(0.002)^2);
 NLM.g = 9.81;
 saturation_u = 5;
 deadzone_u = 2e-1;
 tc = (1/100)*2*pi/10;
 covProcess = 100*diag([0.018^2,(0.018*10)^2,0.018^2,(0.018*10)^2,0.025^2]);
-covSensor = ((2*0.018)^2)*eye(2);
+covSensor = ((1*0.018)^2)*eye(2);
 
 % Simulation parameters
 pulse = 4;
